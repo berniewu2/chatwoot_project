@@ -1,25 +1,13 @@
-<svg
-  width="16"
-  height="16"
-  viewBox="0 0 16 16"
-  fill="none"
-  xmlns="http://www.w3.org/2000/svg"
->
-  <g clip-path="url(#woot-logo-clip-2342424e23u32098)">
-    <path
-      d="M8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16Z"
-      fill="#2781F6"
-    />
-    <path
-      d="M11.4172 11.4172H7.70831C5.66383 11.4172 4 9.75328 4 7.70828C4 5.66394 5.66383 4 7.70835 4C9.75339 4 11.4172 5.66394 11.4172 7.70828V11.4172Z"
-      fill="white"
-      stroke="white"
-      stroke-width="0.1875"
-    />
-  </g>
-  <defs>
-    <clipPath id="woot-logo-clip-2342424e23u32098">
-      <rect width="16" height="16" fill="white" />
-    </clipPath>
-  </defs>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main chat bubble -->
+  <path d="M102 102C102 91.0196 110.02 83 121 83H391C401.98 83 410 91.0196 410 102V307C410 317.98 401.98 326 391 326H307L256 377L205 326H121C110.02 326 102 317.98 102 307V102Z" fill="#4F46E5"/>
+  
+  <!-- Chat bubble tail -->
+  <path d="M256 377L307 326H391C401.98 326 410 317.98 410 307V102C410 91.0196 401.98 83 391 83H121C110.02 83 102 91.0196 102 102V307C102 317.98 110.02 326 121 326H205L256 377Z" fill="#4F46E5"/>
+  
+  <!-- Message dots -->
+  <circle cx="179" cy="205" r="20" fill="white"/>
+  <circle cx="256" cy="205" r="20" fill="white"/>
+  <circle cx="333" cy="205" r="20" fill="white"/>
 </svg>
