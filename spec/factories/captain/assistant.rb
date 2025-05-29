@@ -1,6 +1,6 @@
 FactoryBot.define do
-  factory :captain_assistant, class: 'Captain::Assistant' do
-    sequence(:name) { |n| "Assistant #{n}" }
+  factory :ai_agent_topic, class: 'AiAgent::Topic' do
+    sequence(:name) { |n| "Topic #{n}" }
     description { 'Test description' }
     association :account
   end

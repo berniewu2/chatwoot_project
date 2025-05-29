@@ -1,9 +1,9 @@
-class Captain::Llm::ConversationFaqService < Llm::BaseOpenAiService
+class AiAgent::Llm::ConversationFaqService < Llm::BaseOpenAiService
   DISTANCE_THRESHOLD = 0.3
 
-  def initialize(assistant, conversation)
+  def initialize(topic, conversation)
     super()
-    @assistant = assistant
+    @topic = topic
     @conversation = conversation
     @content = conversation.to_llm_text
   end
@@ -23,7 +23,7 @@ class Captain::Llm::ConversationFaqService < Llm::BaseOpenAiService
 
   private
 
-  attr_reader :content, :conversation, :assistant
+  attr_reader :content, :conversation, :topic
 
   def no_human_interaction?
     conversation.first_reply_created_at.nil?
@@ -35,7 +35,7 @@ class Captain::Llm::ConversationFaqService < Llm::BaseOpenAiService
 
     faqs.each do |faq|
       combined_text = "#{faq['question']}: #{faq['answer']}"
-      embedding = Captain::Llm::EmbeddingService.new.get_embedding(combined_text)
+      embedding = AiAgent::Llm::EmbeddingService.new.get_embedding(combined_text)
       similar_faqs = find_similar_faqs(embedding)
 
       if similar_faqs.any?
@@ -49,7 +49,7 @@ class Captain::Llm::ConversationFaqService < Llm::BaseOpenAiService
   end
 
   def find_similar_faqs(embedding)
-    similar_faqs = assistant
+    similar_faqs = topic
                    .responses
                    .nearest_neighbors(:embedding, embedding, distance: 'cosine')
     Rails.logger.debug(similar_faqs.map { |faq| [faq.question, faq.neighbor_distance] })
@@ -58,7 +58,7 @@ class Captain::Llm::ConversationFaqService < Llm::BaseOpenAiService
 
   def save_new_faqs(faqs)
     faqs.map do |faq|
-      assistant.responses.create!(
+      topic.responses.create!(
         question: faq['question'],
         answer: faq['answer'],
         status: 'pending',
@@ -90,7 +90,7 @@ class Captain::Llm::ConversationFaqService < Llm::BaseOpenAiService
 
   def chat_parameters
     account_language = @conversation.account.locale_english_name
-    prompt = Captain::Llm::SystemPromptsService.conversation_faq_generator(account_language)
+    prompt = AiAgent::Llm::SystemPromptsService.conversation_faq_generator(account_language)
 
     {
       model: @model,

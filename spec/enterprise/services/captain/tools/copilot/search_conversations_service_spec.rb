@@ -1,10 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Captain::Tools::Copilot::SearchConversationsService do
+RSpec.describe AiAgent::Tools::Copilot::SearchConversationsService do
   let(:account) { create(:account) }
   let(:user) { create(:user, role: 'administrator', account: account) }
-  let(:assistant) { create(:captain_assistant, account: account) }
-  let(:service) { described_class.new(assistant, user: user) }
+  let(:topic) { create(:ai_agent_topic, account: account) }
+  let(:service) { described_class.new(topic, user: user) }
 
   describe '#name' do
     it 'returns the correct service name' do

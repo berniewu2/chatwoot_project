@@ -1,10 +1,10 @@
 require 'rails_helper'
 
 # Test tool implementation
-class TestTool < Captain::Tools::BaseService
+class TestTool < AiAgent::Tools::BaseService
   attr_accessor :tool_active
 
-  def initialize(assistant, user: nil)
+  def initialize(topic, user: nil)
     super
     @tool_active = true
   end
@@ -37,9 +37,9 @@ class TestTool < Captain::Tools::BaseService
   end
 end
 
-RSpec.describe Captain::ToolRegistryService do
-  let(:assistant) { create(:captain_assistant) }
-  let(:service) { described_class.new(assistant) }
+RSpec.describe AiAgent::ToolRegistryService do
+  let(:topic) { create(:ai_agent_topic) }
+  let(:service) { described_class.new(topic) }
 
   describe '#initialize' do
     it 'initializes with empty tools and registered_tools' do
@@ -77,7 +77,7 @@ RSpec.describe Captain::ToolRegistryService do
 
     context 'when tool is inactive' do
       it 'does not register the tool' do
-        tool = tool_class.new(assistant)
+        tool = tool_class.new(topic)
         tool.tool_active = false
         allow(tool_class).to receive(:new).and_return(tool)
 

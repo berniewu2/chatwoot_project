@@ -3,25 +3,25 @@ import { computed, onMounted, ref, nextTick } from 'vue';
 import { useMapGetter, useStore } from 'dashboard/composables/store';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 
-import DeleteDialog from 'dashboard/components-next/captain/pageComponents/DeleteDialog.vue';
-import DocumentCard from 'dashboard/components-next/captain/assistant/DocumentCard.vue';
-import PageLayout from 'dashboard/components-next/captain/PageLayout.vue';
-import CaptainPaywall from 'dashboard/components-next/captain/pageComponents/Paywall.vue';
-import RelatedResponses from 'dashboard/components-next/captain/pageComponents/document/RelatedResponses.vue';
-import CreateDocumentDialog from 'dashboard/components-next/captain/pageComponents/document/CreateDocumentDialog.vue';
-import AssistantSelector from 'dashboard/components-next/captain/pageComponents/AssistantSelector.vue';
-import DocumentPageEmptyState from 'dashboard/components-next/captain/pageComponents/emptyStates/DocumentPageEmptyState.vue';
+import DeleteDialog from 'dashboard/components-next/aiAgent/pageComponents/DeleteDialog.vue';
+import DocumentCard from 'dashboard/components-next/aiAgent/topic/DocumentCard.vue';
+import PageLayout from 'dashboard/components-next/aiAgent/PageLayout.vue';
+import AiAgentPaywall from 'dashboard/components-next/aiAgent/pageComponents/Paywall.vue';
+import RelatedResponses from 'dashboard/components-next/aiAgent/pageComponents/document/RelatedResponses.vue';
+import CreateDocumentDialog from 'dashboard/components-next/aiAgent/pageComponents/document/CreateDocumentDialog.vue';
+import TopicSelector from 'dashboard/components-next/aiAgent/pageComponents/TopicSelector.vue';
+import DocumentPageEmptyState from 'dashboard/components-next/aiAgent/pageComponents/emptyStates/DocumentPageEmptyState.vue';
 import FeatureSpotlightPopover from 'dashboard/components-next/feature-spotlight/FeatureSpotlightPopover.vue';
-import LimitBanner from 'dashboard/components-next/captain/pageComponents/document/LimitBanner.vue';
+import LimitBanner from 'dashboard/components-next/aiAgent/pageComponents/document/LimitBanner.vue';
 
 const store = useStore();
 
-const uiFlags = useMapGetter('captainDocuments/getUIFlags');
-const documents = useMapGetter('captainDocuments/getRecords');
-const assistants = useMapGetter('captainAssistants/getRecords');
+const uiFlags = useMapGetter('aiAgentDocuments/getUIFlags');
+const documents = useMapGetter('aiAgentDocuments/getRecords');
+const topics = useMapGetter('aiAgentTopics/getRecords');
 const isFetching = computed(() => uiFlags.value.fetchingList);
-const documentsMeta = useMapGetter('captainDocuments/getMeta');
-const selectedAssistant = ref('all');
+const documentsMeta = useMapGetter('aiAgentDocuments/getMeta');
+const selectedTopic = ref('all');
 
 const selectedDocument = ref(null);
 const deleteDocumentDialog = ref(null);
@@ -35,8 +35,8 @@ const showCreateDialog = ref(false);
 const createDocumentDialog = ref(null);
 const relationQuestionDialog = ref(null);
 
-const shouldShowAssistantSelector = computed(() => {
-  if (assistants.value.length === 0) return false;
+const shouldShowTopicSelector = computed(() => {
+  if (topics.value.length === 0) return false;
 
   return !isFetching.value;
 });
@@ -60,7 +60,7 @@ const handleCreateDialogClose = () => {
 
 const handleAction = ({ action, id }) => {
   selectedDocument.value = documents.value.find(
-    captainDocument => id === captainDocument.id
+    aiAgentDocument => id === aiAgentDocument.id
   );
 
   nextTick(() => {
@@ -75,14 +75,14 @@ const handleAction = ({ action, id }) => {
 const fetchDocuments = (page = 1) => {
   const filterParams = { page };
 
-  if (selectedAssistant.value !== 'all') {
-    filterParams.assistantId = selectedAssistant.value;
+  if (selectedTopic.value !== 'all') {
+    filterParams.topicId = selectedTopic.value;
   }
-  store.dispatch('captainDocuments/get', filterParams);
+  store.dispatch('aiAgentDocuments/get', filterParams);
 };
 
-const handleAssistantFilterChange = assistant => {
-  selectedAssistant.value = assistant;
+const handleTopicFilterChange = topic => {
+  selectedTopic.value = topic;
   fetchDocuments();
 };
 
@@ -95,8 +95,8 @@ const onDeleteSuccess = () => {
 };
 
 onMounted(() => {
-  if (!assistants.value.length) {
-    store.dispatch('captainAssistants/get');
+  if (!topics.value.length) {
+    store.dispatch('aiAgentTopics/get');
   }
   fetchDocuments();
 });
@@ -104,26 +104,26 @@ onMounted(() => {
 
 <template>
   <PageLayout
-    :header-title="$t('CAPTAIN.DOCUMENTS.HEADER')"
-    :button-label="$t('CAPTAIN.DOCUMENTS.ADD_NEW')"
+    :header-title="$t('AI_AGENT.DOCUMENTS.HEADER')"
+    :button-label="$t('AI_AGENT.DOCUMENTS.ADD_NEW')"
     :button-policy="['administrator']"
     :total-count="documentsMeta.totalCount"
     :current-page="documentsMeta.page"
     :show-pagination-footer="!isFetching && !!documents.length"
     :is-fetching="isFetching"
     :is-empty="!documents.length"
-    :feature-flag="FEATURE_FLAGS.CAPTAIN"
+    :feature-flag="FEATURE_FLAGS.AI_AGENT"
     @update:current-page="onPageChange"
     @click="handleCreateDocument"
   >
     <template #knowMore>
       <FeatureSpotlightPopover
-        :button-label="$t('CAPTAIN.HEADER_KNOW_MORE')"
-        :title="$t('CAPTAIN.DOCUMENTS.EMPTY_STATE.FEATURE_SPOTLIGHT.TITLE')"
-        :note="$t('CAPTAIN.DOCUMENTS.EMPTY_STATE.FEATURE_SPOTLIGHT.NOTE')"
-        fallback-thumbnail="/assets/images/dashboard/captain/document-popover-light.svg"
-        fallback-thumbnail-dark="/assets/images/dashboard/captain/document-popover-dark.svg"
-        learn-more-url="https://chwt.app/captain-document"
+        :button-label="$t('AI_AGENT.HEADER_KNOW_MORE')"
+        :title="$t('AI_AGENT.DOCUMENTS.EMPTY_STATE.FEATURE_SPOTLIGHT.TITLE')"
+        :note="$t('AI_AGENT.DOCUMENTS.EMPTY_STATE.FEATURE_SPOTLIGHT.NOTE')"
+        fallback-thumbnail="/assets/images/dashboard/aiAgent/document-popover-light.svg"
+        fallback-thumbnail-dark="/assets/images/dashboard/aiAgent/document-popover-dark.svg"
+        learn-more-url="https://chwt.app/aiAgent-document"
       />
     </template>
 
@@ -132,14 +132,14 @@ onMounted(() => {
     </template>
 
     <template #paywall>
-      <CaptainPaywall />
+      <AiAgentPaywall />
     </template>
 
     <template #controls>
-      <div v-if="shouldShowAssistantSelector" class="mb-4 -mt-3 flex gap-3">
-        <AssistantSelector
-          :assistant-id="selectedAssistant"
-          @update="handleAssistantFilterChange"
+      <div v-if="shouldShowTopicSelector" class="mb-4 -mt-3 flex gap-3">
+        <TopicSelector
+          :topic-id="selectedTopic"
+          @update="handleTopicFilterChange"
         />
       </div>
     </template>
@@ -154,7 +154,7 @@ onMounted(() => {
           :key="doc.id"
           :name="doc.name || doc.external_link"
           :external-link="doc.external_link"
-          :assistant="doc.assistant"
+          :topic="doc.topic"
           :created-at="doc.created_at"
           @action="handleAction"
         />
@@ -164,7 +164,7 @@ onMounted(() => {
     <RelatedResponses
       v-if="showRelatedResponses"
       ref="relationQuestionDialog"
-      :captain-document="selectedDocument"
+      :aiAgent-document="selectedDocument"
       @close="handleRelatedResponseClose"
     />
     <CreateDocumentDialog

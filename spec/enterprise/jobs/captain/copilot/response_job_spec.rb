@@ -1,19 +1,19 @@
 require 'rails_helper'
 
-RSpec.describe Captain::Copilot::ResponseJob, type: :job do
+RSpec.describe AiAgent::Copilot::ResponseJob, type: :job do
   let(:account) { create(:account) }
   let(:user) { create(:user, account: account) }
-  let(:assistant) { create(:captain_assistant, account: account) }
-  let(:copilot_thread) { create(:captain_copilot_thread, account: account, user: user, assistant: assistant) }
+  let(:topic) { create(:ai_agent_topic, account: account) }
+  let(:copilot_thread) { create(:ai_agent_copilot_thread, account: account, user: user, topic: topic) }
   let(:conversation_id) { 123 }
   let(:message) { { 'content' => 'Test message' } }
 
   describe '#perform' do
-    let(:chat_service) { instance_double(Captain::Copilot::ChatService) }
+    let(:chat_service) { instance_double(AiAgent::Copilot::ChatService) }
 
     before do
-      allow(Captain::Copilot::ChatService).to receive(:new).with(
-        assistant,
+      allow(AiAgent::Copilot::ChatService).to receive(:new).with(
+        topic,
         user_id: user.id,
         copilot_thread_id: copilot_thread.id,
         conversation_id: conversation_id
@@ -22,15 +22,15 @@ RSpec.describe Captain::Copilot::ResponseJob, type: :job do
     end
 
     it 'initializes ChatService with correct parameters and calls generate_response' do
-      expect(Captain::Copilot::ChatService).to receive(:new).with(
-        assistant,
+      expect(AiAgent::Copilot::ChatService).to receive(:new).with(
+        topic,
         user_id: user.id,
         copilot_thread_id: copilot_thread.id,
         conversation_id: conversation_id
       )
       expect(chat_service).to receive(:generate_response).with(message)
       described_class.perform_now(
-        assistant: assistant,
+        topic: topic,
         conversation_id: conversation_id,
         user_id: user.id,
         copilot_thread_id: copilot_thread.id,

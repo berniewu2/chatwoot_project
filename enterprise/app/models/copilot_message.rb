@@ -19,7 +19,7 @@ class CopilotMessage < ApplicationRecord
   belongs_to :copilot_thread
   belongs_to :account
 
-  enum message_type: { user: 0, assistant: 1, assistant_thinking: 2 }
+  enum message_type: { user: 0, topic: 1, topic_thinking: 2 }
 
   validates :message_type, presence: true
   validates :message, presence: true
@@ -38,8 +38,8 @@ class CopilotMessage < ApplicationRecord
   end
 
   def enqueue_response_job(conversation_id, user_id)
-    Captain::Copilot::ResponseJob.perform_later(
-      assistant: copilot_thread.assistant,
+    AiAgent::Copilot::ResponseJob.perform_later(
+      topic: copilot_thread.topic,
       conversation_id: conversation_id,
       user_id: user_id,
       copilot_thread_id: copilot_thread.id,
