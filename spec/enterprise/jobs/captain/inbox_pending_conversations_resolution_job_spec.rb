@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Captain::InboxPendingConversationsResolutionJob, type: :job do
+RSpec.describe AiAgent::InboxPendingConversationsResolutionJob, type: :job do
   include ActiveJob::TestHelper
 
   let!(:inbox) { create(:inbox) }
@@ -9,10 +9,10 @@ RSpec.describe Captain::InboxPendingConversationsResolutionJob, type: :job do
   let!(:recent_pending_conversation) { create(:conversation, inbox: inbox, last_activity_at: 10.minutes.ago, status: :pending) }
   let!(:open_conversation) { create(:conversation, inbox: inbox, last_activity_at: 1.hour.ago, status: :open) }
 
-  let!(:captain_assistant) { create(:captain_assistant, account: inbox.account) }
+  let!(:ai_agent_topic) { create(:ai_agent_topic, account: inbox.account) }
 
   before do
-    create(:captain_inbox, inbox: inbox, captain_assistant: captain_assistant)
+    create(:ai_agent_inbox, inbox: inbox, ai_agent_topic: ai_agent_topic)
     stub_const('Limits::BULK_ACTIONS_LIMIT', 2)
   end
 
@@ -31,7 +31,7 @@ RSpec.describe Captain::InboxPendingConversationsResolutionJob, type: :job do
 
   it 'creates exactly one outgoing message with configured content' do
     custom_message = 'This is a custom resolution message.'
-    captain_assistant.update!(config: { 'resolution_message' => custom_message })
+    ai_agent_topic.update!(config: { 'resolution_message' => custom_message })
 
     expect do
       perform_enqueued_jobs { described_class.perform_later(inbox) }
@@ -42,7 +42,7 @@ RSpec.describe Captain::InboxPendingConversationsResolutionJob, type: :job do
   end
 
   it 'creates an outgoing message with default auto resolution message if not configured' do
-    captain_assistant.update!(config: {})
+    ai_agent_topic.update!(config: {})
 
     perform_enqueued_jobs { described_class.perform_later(inbox) }
     outgoing_message = resolvable_pending_conversation.messages.outgoing.last
@@ -51,12 +51,12 @@ RSpec.describe Captain::InboxPendingConversationsResolutionJob, type: :job do
     )
   end
 
-  it 'adds the correct activity message after resolution by Captain' do
+  it 'adds the correct activity message after resolution by AiAgent' do
     perform_enqueued_jobs { described_class.perform_later(inbox) }
     activity_message = resolvable_pending_conversation.messages.activity.last
     expect(activity_message).not_to be_nil
     expect(activity_message.content).to eq(
-      I18n.t('conversations.activity.captain.resolved', user_name: captain_assistant.name)
+      I18n.t('conversations.activity.ai_agent.resolved', user_name: ai_agent_topic.name)
     )
   end
 end

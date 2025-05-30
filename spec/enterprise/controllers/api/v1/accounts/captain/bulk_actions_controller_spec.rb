@@ -1,15 +1,15 @@
 require 'rails_helper'
 
-RSpec.describe 'Api::V1::Accounts::Captain::BulkActions', type: :request do
+RSpec.describe 'Api::V1::Accounts::AiAgent::BulkActions', type: :request do
   let(:account) { create(:account) }
-  let(:assistant) { create(:captain_assistant, account: account) }
+  let(:topic) { create(:ai_agent_topic, account: account) }
   let(:admin) { create(:user, account: account, role: :administrator) }
   let(:agent) { create(:user, account: account, role: :agent) }
   let!(:pending_responses) do
     create_list(
-      :captain_assistant_response,
+      :ai_agent_topic_response,
       2,
-      assistant: assistant,
+      topic: topic,
       account: account,
       status: 'pending'
     )
@@ -19,18 +19,18 @@ RSpec.describe 'Api::V1::Accounts::Captain::BulkActions', type: :request do
     JSON.parse(response.body, symbolize_names: true)
   end
 
-  describe 'POST /api/v1/accounts/:account_id/captain/bulk_actions' do
+  describe 'POST /api/v1/accounts/:account_id/ai_agent/bulk_actions' do
     context 'when approving responses' do
       let(:valid_params) do
         {
-          type: 'AssistantResponse',
+          type: 'TopicResponse',
           ids: pending_responses.map(&:id),
           fields: { status: 'approve' }
         }
       end
 
       it 'approves the responses and returns the updated records' do
-        post "/api/v1/accounts/#{account.id}/captain/bulk_actions",
+        post "/api/v1/accounts/#{account.id}/ai_agent/bulk_actions",
              params: valid_params,
              headers: admin.create_new_auth_token,
              as: :json
@@ -49,7 +49,7 @@ RSpec.describe 'Api::V1::Accounts::Captain::BulkActions', type: :request do
     context 'when deleting responses' do
       let(:delete_params) do
         {
-          type: 'AssistantResponse',
+          type: 'TopicResponse',
           ids: pending_responses.map(&:id),
           fields: { status: 'delete' }
         }
@@ -57,11 +57,11 @@ RSpec.describe 'Api::V1::Accounts::Captain::BulkActions', type: :request do
 
       it 'deletes the responses and returns an empty array' do
         expect do
-          post "/api/v1/accounts/#{account.id}/captain/bulk_actions",
+          post "/api/v1/accounts/#{account.id}/ai_agent/bulk_actions",
                params: delete_params,
                headers: admin.create_new_auth_token,
                as: :json
-        end.to change(Captain::AssistantResponse, :count).by(-2)
+        end.to change(AiAgent::TopicResponse, :count).by(-2)
 
         expect(response).to have_http_status(:ok)
         expect(json_response).to eq([])
@@ -83,7 +83,7 @@ RSpec.describe 'Api::V1::Accounts::Captain::BulkActions', type: :request do
       end
 
       it 'returns unprocessable entity status' do
-        post "/api/v1/accounts/#{account.id}/captain/bulk_actions",
+        post "/api/v1/accounts/#{account.id}/ai_agent/bulk_actions",
              params: invalid_params,
              headers: admin.create_new_auth_token,
              as: :json
@@ -101,13 +101,13 @@ RSpec.describe 'Api::V1::Accounts::Captain::BulkActions', type: :request do
     context 'with missing parameters' do
       let(:missing_params) do
         {
-          type: 'AssistantResponse',
+          type: 'TopicResponse',
           fields: { status: 'approve' }
         }
       end
 
       it 'returns unprocessable entity status' do
-        post "/api/v1/accounts/#{account.id}/captain/bulk_actions",
+        post "/api/v1/accounts/#{account.id}/ai_agent/bulk_actions",
              params: missing_params,
              headers: admin.create_new_auth_token,
              as: :json
@@ -126,8 +126,8 @@ RSpec.describe 'Api::V1::Accounts::Captain::BulkActions', type: :request do
       let(:unauthorized_user) { create(:user, account: create(:account)) }
 
       it 'returns unauthorized status' do
-        post "/api/v1/accounts/#{account.id}/captain/bulk_actions",
-             params: { type: 'AssistantResponse', ids: [1], fields: { status: 'approve' } },
+        post "/api/v1/accounts/#{account.id}/ai_agent/bulk_actions",
+             params: { type: 'TopicResponse', ids: [1], fields: { status: 'approve' } },
              headers: unauthorized_user.create_new_auth_token,
              as: :json
 

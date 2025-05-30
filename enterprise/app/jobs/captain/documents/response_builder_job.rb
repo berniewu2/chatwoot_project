@@ -1,10 +1,10 @@
-class Captain::Documents::ResponseBuilderJob < ApplicationJob
+class AiAgent::Documents::ResponseBuilderJob < ApplicationJob
   queue_as :low
 
   def perform(document)
     reset_previous_responses(document)
 
-    faqs = Captain::Llm::FaqGeneratorService.new(document.content).generate
+    faqs = AiAgent::Llm::FaqGeneratorService.new(document.content).generate
     faqs.each do |faq|
       create_response(faq, document)
     end
@@ -20,7 +20,7 @@ class Captain::Documents::ResponseBuilderJob < ApplicationJob
     document.responses.create!(
       question: faq['question'],
       answer: faq['answer'],
-      assistant: document.assistant,
+      topic: document.topic,
       documentable: document
     )
   rescue ActiveRecord::RecordInvalid => e

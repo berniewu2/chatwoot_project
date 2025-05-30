@@ -1,4 +1,4 @@
-class Captain::Tools::Copilot::GetConversationService < Captain::Tools::BaseService
+class AiAgent::Tools::Copilot::GetConversationService < AiAgent::Tools::BaseService
   def name
     'get_conversation'
   end
@@ -27,7 +27,7 @@ class Captain::Tools::Copilot::GetConversationService < Captain::Tools::BaseServ
 
     return 'Missing required parameters' if conversation_id.blank?
 
-    conversation = Conversation.find_by(display_id: conversation_id, account_id: @assistant.account_id)
+    conversation = Conversation.find_by(display_id: conversation_id, account_id: @topic.account_id)
     return 'Conversation not found' if conversation.blank?
 
     conversation.to_llm_text
