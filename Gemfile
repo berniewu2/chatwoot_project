@@ -178,7 +178,7 @@ gem 'reverse_markdown'
 gem 'iso-639'
 gem 'ruby-openai'
 
-gem 'vader_sentiment_ruby', '~> 1.2'
+gem 'vader_sentiment_ruby', '~> 0.1.1'
 
 gem 'shopify_api'
 
