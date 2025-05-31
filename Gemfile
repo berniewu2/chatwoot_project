@@ -182,8 +182,6 @@ gem 'vader_sentiment_ruby', '~> 1.2'
 
 gem 'shopify_api'
 
-gem 'vader_sentiment_ruby', '~> 1.2'
-
 ### Gems required only in specific deployment environments ###
 ##############################################################
 
