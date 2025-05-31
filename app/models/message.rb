@@ -129,6 +129,7 @@ class Message < ApplicationRecord
   has_many :notifications, as: :primary_actor, dependent: :destroy_async
 
   after_create_commit :execute_after_create_commit_callbacks
+  after_create_commit :enqueue_sentiment_analysis
 
   after_update_commit :dispatch_update_event
 
@@ -262,6 +263,11 @@ class Message < ApplicationRecord
 
   def ensure_content_type
     self.content_type ||= Message.content_types[:text]
+  end
+
+  def enqueue_sentiment_analysis
+    return unless content.present? && !private? && !activity?
+    AnalyzeMessageSentimentJob.perform_async(id)
   end
 
   def execute_after_create_commit_callbacks
