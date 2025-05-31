@@ -66,6 +66,10 @@ const MessageControl = Symbol('MessageControl');
  * @property {EmailContent} [email] - Email content and metadata
  * @property {string|null} [ccEmail] - CC email addresses
  * @property {string|null} [bccEmail] - BCC email addresses
+ * @property {Object} [sentiment] - Sentiment analysis data
+ * @property {number} sentiment.score - Sentiment score (-1 to 1)
+ * @property {string} sentiment.analyzed_at - Timestamp when sentiment was analyzed
+ * @property {Object} [sentiment.details] - Additional sentiment details
  */
 
 /**
@@ -101,6 +105,7 @@ const MessageControl = Symbol('MessageControl');
  * @property {import('vue').ComputedRef<boolean>} isBotOrAgentMessage - Does the message belong to the current user
  * @property {import('vue').ComputedRef<boolean>} isPrivate - Proxy computed value for private
  * @property {import('vue').ComputedRef<boolean>} shouldGroupWithNext - Should group with the next message or not, it is differnt from groupWithNext, this has a bypass for a failed message
+ * @property {import('vue').ComputedRef<Object>} sentiment - Computed sentiment data from contentAttributes
  */
 
 /**
@@ -131,7 +136,11 @@ export function useMessageContext() {
     return useSnakeCase(attachments);
   });
 
-  return { ...context, filteredCurrentChatAttachments };
+  const sentiment = computed(() => {
+    return context.contentAttributes.value?.sentiment || {};
+  });
+
+  return { ...context, filteredCurrentChatAttachments, sentiment };
 }
 
 export function provideMessageContext(context) {

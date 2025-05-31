@@ -12,3 +12,11 @@ json.private message.private
 json.source_id message.source_id
 json.sender message.sender.push_event_data if message.sender
 json.attachments message.attachments.map(&:push_event_data) if message.attachments.present?
+
+if message.sentiment_score.present?
+  json.sentiment do
+    json.score message.sentiment_score
+    json.analyzed_at message.sentiment_analyzed_at.to_i if message.sentiment_analyzed_at
+    json.details message.sentiment if message.sentiment.present?
+  end
+end

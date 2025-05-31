@@ -4,15 +4,19 @@ import BaseBubble from 'next/message/bubbles/Base.vue';
 import FormattedContent from './FormattedContent.vue';
 import AttachmentChips from 'next/message/chips/AttachmentChips.vue';
 import TranslationToggle from 'dashboard/components-next/message/TranslationToggle.vue';
+import SentimentIndicator from 'dashboard/components/widgets/conversation/bubble/SentimentIndicator.vue';
 import { MESSAGE_TYPES } from '../../constants';
 import { useMessageContext } from '../../provider.js';
 import { useTranslations } from 'dashboard/composables/useTranslations';
+import { useFeatureFlags } from 'dashboard/composables/useFeatureFlags';
 
-const { content, attachments, contentAttributes, messageType } =
+const { content, attachments, contentAttributes, messageType, sentiment } =
   useMessageContext();
 
 const { hasTranslations, translationContent } =
   useTranslations(contentAttributes);
+
+const { isFeatureEnabled } = useFeatureFlags();
 
 const renderOriginal = ref(false);
 
@@ -39,6 +43,10 @@ const isEmpty = computed(() => {
 const handleSeeOriginal = () => {
   renderOriginal.value = !renderOriginal.value;
 };
+
+const showSentiment = computed(() => {
+  return isFeatureEnabled('sentiment_analysis') && sentiment.value?.score !== undefined;
+});
 </script>
 
 <template>
@@ -63,6 +71,7 @@ const handleSeeOriginal = () => {
           {{ contentAttributes.submittedEmail }}
         </div>
       </template>
+      <SentimentIndicator v-if="showSentiment" :sentiment="sentiment" />
     </div>
   </BaseBubble>
 </template>

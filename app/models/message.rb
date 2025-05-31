@@ -64,6 +64,8 @@ class Message < ApplicationRecord
   before_save :ensure_processed_message_content
   before_save :ensure_in_reply_to
 
+  after_create_commit :enqueue_sentiment_analysis
+
   validates :account_id, presence: true
   validates :inbox_id, presence: true
   validates :conversation_id, presence: true
@@ -127,6 +129,7 @@ class Message < ApplicationRecord
   has_many :notifications, as: :primary_actor, dependent: :destroy_async
 
   after_create_commit :execute_after_create_commit_callbacks
+  after_create_commit :enqueue_sentiment_analysis
 
   after_update_commit :dispatch_update_event
 
@@ -260,6 +263,11 @@ class Message < ApplicationRecord
 
   def ensure_content_type
     self.content_type ||= Message.content_types[:text]
+  end
+
+  def enqueue_sentiment_analysis
+    return unless content.present? && !private? && !activity?
+    AnalyzeMessageSentimentJob.perform_async(id)
   end
 
   def execute_after_create_commit_callbacks
@@ -402,6 +410,14 @@ class Message < ApplicationRecord
     # rubocop:disable Rails/SkipsModelValidations
     conversation.update_columns(last_activity_at: created_at)
     # rubocop:enable Rails/SkipsModelValidations
+  end
+
+  def enqueue_sentiment_analysis
+    return unless text? || input_text? || input_textarea? || input_email?
+    return if private?
+    return if content.blank?
+
+    AnalyzeMessageSentimentJob.perform_async(id)
   end
 end
 
