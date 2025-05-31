@@ -169,3 +169,8 @@
 - name: crm_integration
   display_name: CRM Integration
   enabled: false
+- name: sentiment_analysis
+  display_name: Sentiment Analysis
+  enabled: false
+  help_url: https://chwt.app/hc/sentiment-analysis
+  premium: true

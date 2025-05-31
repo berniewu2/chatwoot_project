@@ -178,6 +178,8 @@ gem 'reverse_markdown'
 gem 'iso-639'
 gem 'ruby-openai'
 
+gem 'vader_sentiment_ruby', '~> 1.2'
+
 gem 'shopify_api'
 
 ### Gems required only in specific deployment environments ###
